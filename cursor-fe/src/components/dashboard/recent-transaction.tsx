@@ -1,15 +1,9 @@
 "use client"
 
-import { useState } from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useMemo } from "react"
+import { Coffee, ShoppingCart, Wallet, Zap } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
-interface TransactionCalendarProps {
-  onSelectDate: (date: Date) => void
-}
-
-// Mock transaction data - matching backend response structure
 interface Transaction {
   id: string
   amount: number
@@ -19,6 +13,11 @@ interface Transaction {
   created_at: string
 }
 
+interface RecentTransactionsProps {
+  date: Date
+}
+
+// Mock transaction data - matching backend response structure
 const allTransactions: Array<Transaction> = [
   { id: "428121f7-371e-4d8f-af4f-7e14f445e19b", amount: 200, category: "food", description: "eat pizza with team", date: "2025-01-05T09:14:52.840000", created_at: "2025-01-05T16:15:13.681712" },
   { id: "6281ab98-f168-4fe1-9880-2cad6b1f7476", amount: 12.5, category: "Food", description: "Lunch at cafe", date: "2025-01-15T12:30:00", created_at: "2025-01-15T12:35:00" },
@@ -44,117 +43,63 @@ const allTransactions: Array<Transaction> = [
   { id: "75dfe35e-3bcd-4ae9-8c2d-5fda150a1fe1", amount: 3, category: "Transport", description: "Subway pass", date: "2025-01-10T09:00:00", created_at: "2025-01-10T09:05:00" },
 ]
 
-// Create a map of dates to transaction counts
-const getTransactionCountsByDate = (transactions: Array<Transaction>): { [key: string]: number } => {
-  const counts: { [key: string]: number } = {}
-  transactions.forEach((t) => {
-    const dateKey = t.date.split("T")[0]
-    counts[dateKey] = (counts[dateKey] || 0) + 1
-  })
-  return counts
+const categoryIcons: { [key: string]: any } = {
+  shopping: ShoppingCart,
+  food: Coffee,
+  transport: Zap,
+  entertainment: Wallet,
+  healthcare: Wallet,
+  education: Wallet,
+  "personal care": Wallet,
+  miscellaneous: Wallet,
+  bills: Wallet,
+  travel: Wallet,
 }
 
-const mockTransactions = getTransactionCountsByDate(allTransactions)
+export function RecentTransactions({ date }: RecentTransactionsProps) {
+  const dateStr = date.toISOString().split("T")[0]
 
-export function TransactionCalendar({ onSelectDate }: TransactionCalendarProps) {
-  const [currentDate, setCurrentDate] = useState(new Date(2025, 0, 1))
-
-  const getDaysInMonth = (date: Date) => {
-    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
-  }
-
-  const getFirstDayOfMonth = (date: Date) => {
-    return new Date(date.getFullYear(), date.getMonth(), 1).getDay()
-  }
-
-  const formatDate = (day: number) => {
-    return `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`
-  }
-
-  const hasTransactions = (day: number) => {
-    return !!mockTransactions[formatDate(day)]
-  }
-
-  const daysInMonth = getDaysInMonth(currentDate)
-  const firstDay = getFirstDayOfMonth(currentDate)
-  const days = []
-
-  // Empty cells for days before month starts
-  for (let i = 0; i < firstDay; i++) {
-    days.push(null)
-  }
-
-  // Days of the month
-  for (let i = 1; i <= daysInMonth; i++) {
-    days.push(i)
-  }
-
-  const handlePrevMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))
-  }
-
-  const handleNextMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))
-  }
-
-  const handleDateClick = (day: number) => {
-    const newDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
-    onSelectDate(newDate)
-  }
-
-  const monthName = currentDate.toLocaleString("en-US", { month: "long", year: "numeric" })
+  const filteredTransactions = useMemo(() => {
+    return allTransactions.filter((t) => {
+      const transactionDate = t.date.split("T")[0]
+      return transactionDate === dateStr
+    })
+  }, [dateStr])
 
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>Transaction Calendar</CardTitle>
-            <CardDescription>View payments and purchases marked with red dots</CardDescription>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={handlePrevMonth}>
-              <ChevronLeft className="w-4 h-4" />
-            </Button>
-            <span className="text-sm font-medium w-32 text-center">{monthName}</span>
-            <Button variant="outline" size="sm" onClick={handleNextMonth}>
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
+        <CardTitle>Transactions</CardTitle>
+        <CardDescription>
+          {date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {/* Day headers */}
-          <div className="grid grid-cols-7 gap-2 mb-4">
-            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-              <div key={day} className="text-center text-sm font-semibold text-muted-foreground h-8">
-                {day}
-              </div>
-            ))}
-          </div>
+        {filteredTransactions.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-6">No transactions on this date</p>
+        ) : (
+          <div className="space-y-4">
+            {filteredTransactions.map((transaction) => {
+              const categoryLower = transaction.category.toLowerCase()
+              const IconComponent = categoryIcons[categoryLower] || Wallet
 
-          {/* Calendar grid */}
-          <div className="grid grid-cols-7 gap-2">
-            {days.map((day, index) => (
-              <div key={index}>
-                {day === null ? (
-                  <div className="h-12 bg-muted/30 rounded" />
-                ) : (
-                  <button
-                    onClick={() => handleDateClick(day)}
-                    className="w-full h-12 rounded bg-card hover:bg-secondary border border-border relative flex items-center justify-center font-medium text-sm transition-colors"
-                  >
-                    {day}
-                    {hasTransactions(day) && (
-                      <div className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full" />
-                    )}
-                  </button>
-                )}
-              </div>
-            ))}
+              return (
+                <div key={transaction.id} className="flex items-start gap-3 pb-4 border-b border-border last:border-0">
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-destructive/10 text-destructive">
+                    <IconComponent className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm text-card-foreground truncate">{transaction.description}</p>
+                    <p className="text-xs text-muted-foreground">{transaction.category}</p>
+                  </div>
+                  <p className="text-sm font-semibold whitespace-nowrap text-foreground">
+                    -${transaction.amount.toFixed(2)}
+                  </p>
+                </div>
+              )
+            })}
           </div>
-        </div>
+        )}
       </CardContent>
     </Card>
   )
