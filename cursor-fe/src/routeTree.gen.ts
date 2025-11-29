@@ -10,11 +10,16 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as McpRouteImport } from './routes/mcp'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
 import { Route as DemoStoreRouteImport } from './routes/demo/store'
 import { Route as DemoMcpTodosRouteImport } from './routes/demo/mcp-todos'
-import { Route as DashboardDashboardRouteImport } from './routes/dashboard/dashboard'
+import { Route as DashboardProfileRouteImport } from './routes/dashboard.profile'
+import { Route as DashboardHistoryRouteImport } from './routes/dashboard.history'
+import { Route as DashboardCalendarRouteImport } from './routes/dashboard.calendar'
 import { Route as ApiSpendingsRouteImport } from './routes/api/spendings'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
 import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
@@ -33,10 +38,25 @@ const McpRoute = McpRouteImport.update({
   path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRoute,
 } as any)
 const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
   id: '/demo/tanstack-query',
@@ -53,9 +73,24 @@ const DemoMcpTodosRoute = DemoMcpTodosRouteImport.update({
   path: '/demo/mcp-todos',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardDashboardRoute = DashboardDashboardRouteImport.update({
-  id: '/dashboard/dashboard',
-  path: '/dashboard/dashboard',
+const DashboardProfileRoute = DashboardProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardHistoryRoute = DashboardHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardCalendarRoute = DashboardCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const ApiSpendingsRoute = ApiSpendingsRouteImport.update({
+  id: '/api/spendings',
+  path: '/api/spendings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiSpendingsRoute = ApiSpendingsRouteImport.update({
@@ -121,12 +156,17 @@ const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRouteWithChildren
+  '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
   '/api/spendings': typeof ApiSpendingsRoute
-  '/dashboard/dashboard': typeof DashboardDashboardRoute
+  '/dashboard/calendar': typeof DashboardCalendarRoute
+  '/dashboard/history': typeof DashboardHistoryRoute
+  '/dashboard/profile': typeof DashboardProfileRoute
   '/demo/mcp-todos': typeof DemoMcpTodosRoute
   '/demo/store': typeof DemoStoreRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/dashboard/': typeof DashboardIndexRoute
   '/demo/api/mcp-todos': typeof DemoApiMcpTodosRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
@@ -141,12 +181,16 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
   '/api/spendings': typeof ApiSpendingsRoute
-  '/dashboard/dashboard': typeof DashboardDashboardRoute
+  '/dashboard/calendar': typeof DashboardCalendarRoute
+  '/dashboard/history': typeof DashboardHistoryRoute
+  '/dashboard/profile': typeof DashboardProfileRoute
   '/demo/mcp-todos': typeof DemoMcpTodosRoute
   '/demo/store': typeof DemoStoreRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/dashboard': typeof DashboardIndexRoute
   '/demo/api/mcp-todos': typeof DemoApiMcpTodosRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
@@ -162,12 +206,17 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRouteWithChildren
+  '/login': typeof LoginRoute
   '/mcp': typeof McpRoute
   '/api/spendings': typeof ApiSpendingsRoute
-  '/dashboard/dashboard': typeof DashboardDashboardRoute
+  '/dashboard/calendar': typeof DashboardCalendarRoute
+  '/dashboard/history': typeof DashboardHistoryRoute
+  '/dashboard/profile': typeof DashboardProfileRoute
   '/demo/mcp-todos': typeof DemoMcpTodosRoute
   '/demo/store': typeof DemoStoreRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/dashboard/': typeof DashboardIndexRoute
   '/demo/api/mcp-todos': typeof DemoApiMcpTodosRoute
   '/demo/api/names': typeof DemoApiNamesRoute
   '/demo/api/tq-todos': typeof DemoApiTqTodosRoute
@@ -184,12 +233,17 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/dashboard'
+    | '/login'
     | '/mcp'
     | '/api/spendings'
-    | '/dashboard/dashboard'
+    | '/dashboard/calendar'
+    | '/dashboard/history'
+    | '/dashboard/profile'
     | '/demo/mcp-todos'
     | '/demo/store'
     | '/demo/tanstack-query'
+    | '/dashboard/'
     | '/demo/api/mcp-todos'
     | '/demo/api/names'
     | '/demo/api/tq-todos'
@@ -204,12 +258,16 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/login'
     | '/mcp'
     | '/api/spendings'
-    | '/dashboard/dashboard'
+    | '/dashboard/calendar'
+    | '/dashboard/history'
+    | '/dashboard/profile'
     | '/demo/mcp-todos'
     | '/demo/store'
     | '/demo/tanstack-query'
+    | '/dashboard'
     | '/demo/api/mcp-todos'
     | '/demo/api/names'
     | '/demo/api/tq-todos'
@@ -224,12 +282,17 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/dashboard'
+    | '/login'
     | '/mcp'
     | '/api/spendings'
-    | '/dashboard/dashboard'
+    | '/dashboard/calendar'
+    | '/dashboard/history'
+    | '/dashboard/profile'
     | '/demo/mcp-todos'
     | '/demo/store'
     | '/demo/tanstack-query'
+    | '/dashboard/'
     | '/demo/api/mcp-todos'
     | '/demo/api/names'
     | '/demo/api/tq-todos'
@@ -245,9 +308,10 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
+  LoginRoute: typeof LoginRoute
   McpRoute: typeof McpRoute
   ApiSpendingsRoute: typeof ApiSpendingsRoute
-  DashboardDashboardRoute: typeof DashboardDashboardRoute
   DemoMcpTodosRoute: typeof DemoMcpTodosRoute
   DemoStoreRoute: typeof DemoStoreRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
@@ -273,12 +337,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
     }
     '/demo/tanstack-query': {
       id: '/demo/tanstack-query'
@@ -301,11 +386,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoMcpTodosRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard/dashboard': {
-      id: '/dashboard/dashboard'
-      path: '/dashboard/dashboard'
-      fullPath: '/dashboard/dashboard'
-      preLoaderRoute: typeof DashboardDashboardRouteImport
+    '/dashboard/profile': {
+      id: '/dashboard/profile'
+      path: '/profile'
+      fullPath: '/dashboard/profile'
+      preLoaderRoute: typeof DashboardProfileRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/history': {
+      id: '/dashboard/history'
+      path: '/history'
+      fullPath: '/dashboard/history'
+      preLoaderRoute: typeof DashboardHistoryRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/calendar': {
+      id: '/dashboard/calendar'
+      path: '/calendar'
+      fullPath: '/dashboard/calendar'
+      preLoaderRoute: typeof DashboardCalendarRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/api/spendings': {
+      id: '/api/spendings'
+      path: '/api/spendings'
+      fullPath: '/api/spendings'
+      preLoaderRoute: typeof ApiSpendingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/spendings': {
@@ -395,11 +501,30 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface DashboardRouteChildren {
+  DashboardCalendarRoute: typeof DashboardCalendarRoute
+  DashboardHistoryRoute: typeof DashboardHistoryRoute
+  DashboardProfileRoute: typeof DashboardProfileRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardCalendarRoute: DashboardCalendarRoute,
+  DashboardHistoryRoute: DashboardHistoryRoute,
+  DashboardProfileRoute: DashboardProfileRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRoute: DashboardRouteWithChildren,
+  LoginRoute: LoginRoute,
   McpRoute: McpRoute,
   ApiSpendingsRoute: ApiSpendingsRoute,
-  DashboardDashboardRoute: DashboardDashboardRoute,
   DemoMcpTodosRoute: DemoMcpTodosRoute,
   DemoStoreRoute: DemoStoreRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
