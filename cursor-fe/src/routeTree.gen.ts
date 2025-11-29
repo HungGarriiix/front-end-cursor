@@ -19,6 +19,7 @@ import { Route as DemoStoreRouteImport } from './routes/demo/store'
 import { Route as DemoMcpTodosRouteImport } from './routes/demo/mcp-todos'
 import { Route as DashboardSettingsRouteImport } from './routes/dashboard.settings'
 import { Route as DashboardProfileRouteImport } from './routes/dashboard.profile'
+import { Route as DashboardImagescanRouteImport } from './routes/dashboard.imagescan'
 import { Route as DashboardHistoryRouteImport } from './routes/dashboard.history'
 import { Route as DashboardCalendarRouteImport } from './routes/dashboard.calendar'
 import { Route as ApiSpendingsRouteImport } from './routes/api/spendings'
@@ -82,6 +83,11 @@ const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
 const DashboardProfileRoute = DashboardProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardImagescanRoute = DashboardImagescanRouteImport.update({
+  id: '/imagescan',
+  path: '/imagescan',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardHistoryRoute = DashboardHistoryRouteImport.update({
@@ -163,6 +169,7 @@ export interface FileRoutesByFullPath {
   '/api/spendings': typeof ApiSpendingsRoute
   '/dashboard/calendar': typeof DashboardCalendarRoute
   '/dashboard/history': typeof DashboardHistoryRoute
+  '/dashboard/imagescan': typeof DashboardImagescanRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/demo/mcp-todos': typeof DemoMcpTodosRoute
@@ -188,6 +195,7 @@ export interface FileRoutesByTo {
   '/api/spendings': typeof ApiSpendingsRoute
   '/dashboard/calendar': typeof DashboardCalendarRoute
   '/dashboard/history': typeof DashboardHistoryRoute
+  '/dashboard/imagescan': typeof DashboardImagescanRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/demo/mcp-todos': typeof DemoMcpTodosRoute
@@ -215,6 +223,7 @@ export interface FileRoutesById {
   '/api/spendings': typeof ApiSpendingsRoute
   '/dashboard/calendar': typeof DashboardCalendarRoute
   '/dashboard/history': typeof DashboardHistoryRoute
+  '/dashboard/imagescan': typeof DashboardImagescanRoute
   '/dashboard/profile': typeof DashboardProfileRoute
   '/dashboard/settings': typeof DashboardSettingsRoute
   '/demo/mcp-todos': typeof DemoMcpTodosRoute
@@ -243,6 +252,7 @@ export interface FileRouteTypes {
     | '/api/spendings'
     | '/dashboard/calendar'
     | '/dashboard/history'
+    | '/dashboard/imagescan'
     | '/dashboard/profile'
     | '/dashboard/settings'
     | '/demo/mcp-todos'
@@ -268,6 +278,7 @@ export interface FileRouteTypes {
     | '/api/spendings'
     | '/dashboard/calendar'
     | '/dashboard/history'
+    | '/dashboard/imagescan'
     | '/dashboard/profile'
     | '/dashboard/settings'
     | '/demo/mcp-todos'
@@ -294,6 +305,7 @@ export interface FileRouteTypes {
     | '/api/spendings'
     | '/dashboard/calendar'
     | '/dashboard/history'
+    | '/dashboard/imagescan'
     | '/dashboard/profile'
     | '/dashboard/settings'
     | '/demo/mcp-todos'
@@ -407,6 +419,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardProfileRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/imagescan': {
+      id: '/dashboard/imagescan'
+      path: '/imagescan'
+      fullPath: '/dashboard/imagescan'
+      preLoaderRoute: typeof DashboardImagescanRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/history': {
       id: '/dashboard/history'
       path: '/history'
@@ -511,6 +530,7 @@ declare module '@tanstack/react-router' {
 interface DashboardRouteChildren {
   DashboardCalendarRoute: typeof DashboardCalendarRoute
   DashboardHistoryRoute: typeof DashboardHistoryRoute
+  DashboardImagescanRoute: typeof DashboardImagescanRoute
   DashboardProfileRoute: typeof DashboardProfileRoute
   DashboardSettingsRoute: typeof DashboardSettingsRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
@@ -519,6 +539,7 @@ interface DashboardRouteChildren {
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardCalendarRoute: DashboardCalendarRoute,
   DashboardHistoryRoute: DashboardHistoryRoute,
+  DashboardImagescanRoute: DashboardImagescanRoute,
   DashboardProfileRoute: DashboardProfileRoute,
   DashboardSettingsRoute: DashboardSettingsRoute,
   DashboardIndexRoute: DashboardIndexRoute,
