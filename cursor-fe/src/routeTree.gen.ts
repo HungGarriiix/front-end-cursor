@@ -15,6 +15,7 @@ import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-qu
 import { Route as DemoStoreRouteImport } from './routes/demo/store'
 import { Route as DemoMcpTodosRouteImport } from './routes/demo/mcp-todos'
 import { Route as DashboardDashboardRouteImport } from './routes/dashboard/dashboard'
+import { Route as ApiSpendingsRouteImport } from './routes/api/spendings'
 import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
 import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
 import { Route as DemoFormSimpleRouteImport } from './routes/demo/form.simple'
@@ -55,6 +56,11 @@ const DemoMcpTodosRoute = DemoMcpTodosRouteImport.update({
 const DashboardDashboardRoute = DashboardDashboardRouteImport.update({
   id: '/dashboard/dashboard',
   path: '/dashboard/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSpendingsRoute = ApiSpendingsRouteImport.update({
+  id: '/api/spendings',
+  path: '/api/spendings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
@@ -116,6 +122,7 @@ const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/mcp': typeof McpRoute
+  '/api/spendings': typeof ApiSpendingsRoute
   '/dashboard/dashboard': typeof DashboardDashboardRoute
   '/demo/mcp-todos': typeof DemoMcpTodosRoute
   '/demo/store': typeof DemoStoreRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/mcp': typeof McpRoute
+  '/api/spendings': typeof ApiSpendingsRoute
   '/dashboard/dashboard': typeof DashboardDashboardRoute
   '/demo/mcp-todos': typeof DemoMcpTodosRoute
   '/demo/store': typeof DemoStoreRoute
@@ -155,6 +163,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/mcp': typeof McpRoute
+  '/api/spendings': typeof ApiSpendingsRoute
   '/dashboard/dashboard': typeof DashboardDashboardRoute
   '/demo/mcp-todos': typeof DemoMcpTodosRoute
   '/demo/store': typeof DemoStoreRoute
@@ -176,6 +185,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/mcp'
+    | '/api/spendings'
     | '/dashboard/dashboard'
     | '/demo/mcp-todos'
     | '/demo/store'
@@ -195,6 +205,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/mcp'
+    | '/api/spendings'
     | '/dashboard/dashboard'
     | '/demo/mcp-todos'
     | '/demo/store'
@@ -214,6 +225,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/mcp'
+    | '/api/spendings'
     | '/dashboard/dashboard'
     | '/demo/mcp-todos'
     | '/demo/store'
@@ -234,6 +246,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   McpRoute: typeof McpRoute
+  ApiSpendingsRoute: typeof ApiSpendingsRoute
   DashboardDashboardRoute: typeof DashboardDashboardRoute
   DemoMcpTodosRoute: typeof DemoMcpTodosRoute
   DemoStoreRoute: typeof DemoStoreRoute
@@ -293,6 +306,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard/dashboard'
       fullPath: '/dashboard/dashboard'
       preLoaderRoute: typeof DashboardDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/spendings': {
+      id: '/api/spendings'
+      path: '/api/spendings'
+      fullPath: '/api/spendings'
+      preLoaderRoute: typeof ApiSpendingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo/start/server-funcs': {
@@ -378,6 +398,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   McpRoute: McpRoute,
+  ApiSpendingsRoute: ApiSpendingsRoute,
   DashboardDashboardRoute: DashboardDashboardRoute,
   DemoMcpTodosRoute: DemoMcpTodosRoute,
   DemoStoreRoute: DemoStoreRoute,
