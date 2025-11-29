@@ -11,7 +11,7 @@ export const Route = createFileRoute('/api/spendings')({
 
         try {
           const response = await fetch(
-            `http://100.107.37.6:8000/spendings?skip=${skip}&limit=${limit}`,
+            `http://100.65.74.85:8000/spendings?skip=${skip}&limit=${limit}`,
             {
               method: 'GET',
               headers: {

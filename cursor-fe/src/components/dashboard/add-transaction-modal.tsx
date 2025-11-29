@@ -66,7 +66,7 @@ export function AddTransactionModal({ open, onOpenChange }: AddTransactionModalP
     try {
       const dateTime = formatDateTime(date, time || '00:00')
       
-      const response = await fetch('http://100.95.210.53:8000/spendings', {
+      const response = await fetch('http://100.65.74.85:8000/spendings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
