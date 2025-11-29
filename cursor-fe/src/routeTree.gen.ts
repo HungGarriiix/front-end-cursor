@@ -99,11 +99,6 @@ const ApiSpendingsRoute = ApiSpendingsRouteImport.update({
   path: '/api/spendings',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiSpendingsRoute = ApiSpendingsRouteImport.update({
-  id: '/api/spendings',
-  path: '/api/spendings',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
   id: '/demo/start/server-funcs',
   path: '/demo/start/server-funcs',
@@ -425,13 +420,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/calendar'
       preLoaderRoute: typeof DashboardCalendarRouteImport
       parentRoute: typeof DashboardRoute
-    }
-    '/api/spendings': {
-      id: '/api/spendings'
-      path: '/api/spendings'
-      fullPath: '/api/spendings'
-      preLoaderRoute: typeof ApiSpendingsRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/api/spendings': {
       id: '/api/spendings'
