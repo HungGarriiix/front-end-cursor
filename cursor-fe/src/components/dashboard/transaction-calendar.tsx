@@ -14,13 +14,15 @@ import { useSpendings } from '@/hooks/queries/useSpendings'
 
 interface TransactionCalendarProps {
   onSelectDate: (date: Date) => void
+  selectedDate?: Date
 }
 
 export function TransactionCalendar({
   onSelectDate,
+  selectedDate,
 }: TransactionCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date())
-  const { data: spendings = [], isLoading } = useSpendings()
+  const { data: spendings = [] } = useSpendings()
 
   const getDaysInMonth = (date: Date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
@@ -95,6 +97,30 @@ export function TransactionCalendar({
     currentDate.getMonth() === today.getMonth()
   const currentDay = today.getDate()
 
+  // Check if a day is the selected date
+  const isSelectedDate = (day: number) => {
+    if (!selectedDate) return false
+    const dayDate = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      day,
+    )
+    return (
+      dayDate.getFullYear() === selectedDate.getFullYear() &&
+      dayDate.getMonth() === selectedDate.getMonth() &&
+      dayDate.getDate() === selectedDate.getDate()
+    )
+  }
+
+  // Check if a day is today
+  const isToday = (day: number) => {
+    return (
+      isCurrentMonth &&
+      day === currentDay &&
+      currentDate.getFullYear() === today.getFullYear()
+    )
+  }
+
   const monthName = currentDate.toLocaleString('en-US', {
     month: 'long',
     year: 'numeric',
@@ -147,18 +173,22 @@ export function TransactionCalendar({
                   <button
                     onClick={() => handleDateClick(day)}
                     className={`w-full h-12 rounded font-medium text-sm transition-colors relative flex items-center justify-center border ${
-                      isCurrentMonth && day === currentDay
-                        ? 'bg-primary text-primary-foreground border-primary'
-                        : 'bg-card hover:bg-secondary border-border'
+                      isSelectedDate(day)
+                        ? 'bg-primary text-primary-foreground border-primary ring-2 ring-primary ring-offset-2'
+                        : isToday(day)
+                          ? 'bg-primary/20 text-primary border-primary/50'
+                          : 'bg-card hover:bg-secondary border-border'
                     }`}
                   >
                     {day}
                     {hasTransactions(day) && (
                       <div
                         className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${
-                          isCurrentMonth && day === currentDay
+                          isSelectedDate(day)
                             ? 'bg-primary-foreground'
-                            : 'bg-destructive'
+                            : isToday(day)
+                              ? 'bg-primary'
+                              : 'bg-destructive'
                         }`}
                       />
                     )}

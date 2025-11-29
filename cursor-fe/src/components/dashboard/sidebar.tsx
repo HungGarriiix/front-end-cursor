@@ -1,7 +1,15 @@
 'use client'
 
 import { Link, useLocation, useNavigate } from '@tanstack/react-router'
-import { Home, User, Calendar, History, Settings, LogOut } from 'lucide-react'
+import {
+  Home,
+  User,
+  Calendar,
+  History,
+  Settings,
+  LogOut,
+  Image,
+} from 'lucide-react'
 import { Button } from '../ui/button'
 import { useClerk } from '@clerk/clerk-react'
 
@@ -20,6 +28,11 @@ const menuItems = [
     label: 'History',
     href: '/dashboard/history',
     icon: History,
+  },
+  {
+    label: 'Image Scan',
+    href: '/dashboard/imagescan',
+    icon: Image,
   },
   {
     label: 'Profile',
