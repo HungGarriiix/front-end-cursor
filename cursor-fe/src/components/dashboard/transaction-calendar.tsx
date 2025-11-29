@@ -1,32 +1,26 @@
-"use client"
+'use client'
 
-import { useMemo, useState } from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { useSpendings } from "@/hooks/use-spendings"
+import { useState } from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { useSpendings } from '@/hooks/queries/useSpendings'
 
 interface TransactionCalendarProps {
   onSelectDate: (date: Date) => void
 }
 
-// Create a map of dates to transaction counts
-const getTransactionCountsByDate = (transactions: Array<{ date: string }>): { [key: string]: number } => {
-  const counts: { [key: string]: number } = {}
-  transactions.forEach((t) => {
-    const dateKey = t.date.split("T")[0]
-    counts[dateKey] = (counts[dateKey] || 0) + 1
-  })
-  return counts
-}
-
-export function TransactionCalendar({ onSelectDate }: TransactionCalendarProps) {
-  const { transactions } = useSpendings()
+export function TransactionCalendar({
+  onSelectDate,
+}: TransactionCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date())
-
-  const transactionCounts = useMemo(() => {
-    return getTransactionCountsByDate(transactions)
-  }, [transactions])
+  const { data: spendings = [], isLoading } = useSpendings()
 
   const getDaysInMonth = (date: Date) => {
     return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate()
@@ -37,11 +31,27 @@ export function TransactionCalendar({ onSelectDate }: TransactionCalendarProps) 
   }
 
   const formatDate = (day: number) => {
-    return `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`
+    return `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
   }
 
+  // Create a map of dates to transaction counts from real data
+  const getTransactionCountsByDate = () => {
+    const counts: { [key: string]: number } = {}
+    spendings.forEach((spending) => {
+      // Extract just the date part (YYYY-MM-DD) from the ISO string
+      // This avoids timezone conversion issues
+      const dateKey = spending.date.split('T')[0]
+      counts[dateKey] = (counts[dateKey] || 0) + 1
+    })
+    return counts
+  }
+
+  const transactionCounts = getTransactionCountsByDate()
+
   const hasTransactions = (day: number) => {
-    return !!transactionCounts[formatDate(day)]
+    // Format the date to match the format from API (YYYY-MM-DD)
+    const dateStr = formatDate(day)
+    return !!transactionCounts[dateStr]
   }
 
   const daysInMonth = getDaysInMonth(currentDate)
@@ -59,19 +69,36 @@ export function TransactionCalendar({ onSelectDate }: TransactionCalendarProps) 
   }
 
   const handlePrevMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))
+    setCurrentDate(
+      new Date(currentDate.getFullYear(), currentDate.getMonth() - 1),
+    )
   }
 
   const handleNextMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))
+    setCurrentDate(
+      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1),
+    )
   }
 
   const handleDateClick = (day: number) => {
-    const newDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
+    const newDate = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      day,
+    )
     onSelectDate(newDate)
   }
 
-  const monthName = currentDate.toLocaleString("en-US", { month: "long", year: "numeric" })
+  const today = new Date()
+  const isCurrentMonth =
+    currentDate.getFullYear() === today.getFullYear() &&
+    currentDate.getMonth() === today.getMonth()
+  const currentDay = today.getDate()
+
+  const monthName = currentDate.toLocaleString('en-US', {
+    month: 'long',
+    year: 'numeric',
+  })
 
   return (
     <Card>
@@ -79,13 +106,17 @@ export function TransactionCalendar({ onSelectDate }: TransactionCalendarProps) 
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>Transaction Calendar</CardTitle>
-            <CardDescription>View payments and purchases marked with red dots</CardDescription>
+            <CardDescription>
+              View payments and purchases marked with red dots
+            </CardDescription>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={handlePrevMonth}>
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <span className="text-sm font-medium w-32 text-center">{monthName}</span>
+            <span className="text-sm font-medium w-32 text-center">
+              {monthName}
+            </span>
             <Button variant="outline" size="sm" onClick={handleNextMonth}>
               <ChevronRight className="w-4 h-4" />
             </Button>
@@ -96,8 +127,11 @@ export function TransactionCalendar({ onSelectDate }: TransactionCalendarProps) 
         <div className="space-y-4">
           {/* Day headers */}
           <div className="grid grid-cols-7 gap-2 mb-4">
-            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-              <div key={day} className="text-center text-sm font-semibold text-muted-foreground h-8">
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+              <div
+                key={day}
+                className="text-center text-sm font-semibold text-muted-foreground h-8"
+              >
                 {day}
               </div>
             ))}
@@ -112,11 +146,21 @@ export function TransactionCalendar({ onSelectDate }: TransactionCalendarProps) 
                 ) : (
                   <button
                     onClick={() => handleDateClick(day)}
-                    className="w-full h-12 rounded bg-card hover:bg-secondary border border-border relative flex items-center justify-center font-medium text-sm transition-colors"
+                    className={`w-full h-12 rounded font-medium text-sm transition-colors relative flex items-center justify-center border ${
+                      isCurrentMonth && day === currentDay
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : 'bg-card hover:bg-secondary border-border'
+                    }`}
                   >
                     {day}
                     {hasTransactions(day) && (
-                      <div className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full" />
+                      <div
+                        className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${
+                          isCurrentMonth && day === currentDay
+                            ? 'bg-primary-foreground'
+                            : 'bg-destructive'
+                        }`}
+                      />
                     )}
                   </button>
                 )}

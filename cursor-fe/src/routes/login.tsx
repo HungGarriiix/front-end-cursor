@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
@@ -17,6 +17,7 @@ function LoginPage() {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
 
+  // Redirect if already authenticated
   if (user) {
     navigate({ to: '/dashboard' })
     return null
@@ -25,6 +26,7 @@ function LoginPage() {
   const handleGoogleLogin = async () => {
     setLoading(true)
     try {
+      // Mock Google OAuth - in production, use proper authentication
       const mockUser = {
         id: '1',
         email: email || 'user@example.com',
@@ -34,6 +36,7 @@ function LoginPage() {
 
       login(mockUser)
 
+      // Navigate to dashboard
       await navigate({ to: '/dashboard' })
     } catch (error) {
       console.error('Login failed:', error)
@@ -43,6 +46,7 @@ function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/30 flex items-center justify-center p-4">
+      {/* Back to home */}
       <Link to="/" className="absolute top-6 left-6">
         <Button variant="ghost" size="sm" className="gap-2">
           <ArrowLeft className="w-4 h-4" />
@@ -51,16 +55,19 @@ function LoginPage() {
       </Link>
 
       <div className="w-full max-w-md">
+        {/* Card */}
         <div className="bg-card border border-border rounded-lg p-8 space-y-8">
+          {/* Header */}
           <div className="space-y-2 text-center">
             <h1 className="text-3xl font-bold text-card-foreground">
               Welcome Back
             </h1>
             <p className="text-muted-foreground">
-              Sign in to your FinanceFlow account
+              Sign in to your FinanceFrend account
             </p>
           </div>
 
+          {/* Login Form */}
           <form
             onSubmit={(e) => {
               e.preventDefault()
@@ -85,6 +92,7 @@ function LoginPage() {
               />
             </div>
 
+            {/* Google OAuth Button */}
             <Button
               type="submit"
               size="lg"
@@ -114,6 +122,7 @@ function LoginPage() {
             </Button>
           </form>
 
+          {/* Divider */}
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-border"></div>
@@ -125,10 +134,12 @@ function LoginPage() {
             </div>
           </div>
 
+          {/* Info */}
           <p className="text-center text-sm text-muted-foreground">
             For demo purposes, enter any email address to sign in instantly.
           </p>
 
+          {/* Sign up link */}
           <p className="text-center text-sm text-muted-foreground">
             Don't have an account?{' '}
             <button
@@ -142,6 +153,7 @@ function LoginPage() {
           </p>
         </div>
 
+        {/* Footer */}
         <p className="text-center text-xs text-muted-foreground mt-6">
           By signing in, you agree to our Terms of Service and Privacy Policy.
         </p>

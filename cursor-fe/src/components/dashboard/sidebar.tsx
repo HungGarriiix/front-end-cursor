@@ -50,8 +50,12 @@ export function Sidebar() {
       <nav className="flex-1 p-6 space-y-2">
         {menuItems.map((item) => {
           const Icon = item.icon
+          // For home (/dashboard), only match exactly /dashboard or /dashboard/
+          // For other routes, match exactly or when it's a subroute
           const isActive =
-            pathname === item.href || pathname.startsWith(item.href + '/')
+            item.href === '/dashboard'
+              ? pathname === '/dashboard' || pathname === '/dashboard/'
+              : pathname === item.href || pathname.startsWith(item.href + '/')
 
           return (
             <Link key={item.href} to={item.href} className="block">
@@ -69,10 +73,15 @@ export function Sidebar() {
 
       {/* Footer Actions */}
       <div className="p-6 border-t border-border space-y-2">
-        <Button variant="ghost" className="w-full justify-start gap-3">
-          <Settings className="w-5 h-5" />
-          Settings
-        </Button>
+        <Link to="/dashboard/settings" className="block">
+          <Button
+            variant={pathname === '/dashboard/settings' ? 'default' : 'ghost'}
+            className="w-full justify-start gap-3"
+          >
+            <Settings className="w-5 h-5" />
+            Settings
+          </Button>
+        </Link>
         <Button
           variant="ghost"
           className="w-full justify-start gap-3 text-destructive hover:text-destructive"
