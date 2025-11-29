@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { MessageCircle, X, ImagePlus, Send } from 'lucide-react'
+import { MessageCircle, X, ImagePlus } from 'lucide-react'
 
 export function Chatbot() {
   const [isOpen, setIsOpen] = useState(false)

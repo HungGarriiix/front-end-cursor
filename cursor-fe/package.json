@@ -13,6 +13,7 @@
     "deploy": "wrangler deploy"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.57.0",
     "@cloudflare/vite-plugin": "^1.13.8",
     "@modelcontextprotocol/sdk": "^1.17.0",
     "@radix-ui/react-label": "^2.1.8",
