@@ -3,13 +3,7 @@
 import type React from 'react'
 import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
@@ -193,67 +187,6 @@ function ProfilePage() {
                 <p className="text-foreground py-2">{formData.joinDate}</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Account Settings */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Account Settings</CardTitle>
-            <CardDescription>
-              Manage your account preferences and security
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
-              <div>
-                <p className="font-medium text-foreground">
-                  Two-Factor Authentication
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Add an extra layer of security
-                </p>
-              </div>
-              <Button variant="outline" size="sm">
-                Enable
-              </Button>
-            </div>
-
-            <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
-              <div>
-                <p className="font-medium text-foreground">Change Password</p>
-                <p className="text-sm text-muted-foreground">
-                  Update your password regularly
-                </p>
-              </div>
-              <Button variant="outline" size="sm">
-                Change
-              </Button>
-            </div>
-
-            <div className="flex items-center justify-between p-4 bg-secondary/50 rounded-lg">
-              <div>
-                <p className="font-medium text-foreground">Notifications</p>
-                <p className="text-sm text-muted-foreground">
-                  Manage email and app notifications
-                </p>
-              </div>
-              <Button variant="outline" size="sm">
-                Configure
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Danger Zone */}
-        <Card className="border-destructive/20 bg-destructive/5">
-          <CardHeader>
-            <CardTitle className="text-destructive">Danger Zone</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Button variant="destructive" className="w-full">
-              Delete Account
-            </Button>
           </CardContent>
         </Card>
       </div>
