@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
-import { useAuth } from '@/lib/auth-context'
+import { useUser } from '@clerk/clerk-react'
 import { Mail, Phone, MapPin, Calendar, Edit2 } from 'lucide-react'
 
 export const Route = createFileRoute('/dashboard/profile')({
@@ -15,18 +15,22 @@ export const Route = createFileRoute('/dashboard/profile')({
 })
 
 function ProfilePage() {
-  const { user } = useAuth()
+  const { user: clerkUser } = useUser()
   const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
-    phone: '+1 (555) 123-4567',
+    name: clerkUser?.fullName || '',
+    email: clerkUser?.primaryEmailAddress?.emailAddress || '',
+    phone: clerkUser?.primaryPhoneNumber?.phoneNumber || '+1 (555) 123-4567',
     location: 'San Francisco, CA',
-    joinDate: 'January 2024',
+    joinDate:
+      clerkUser?.createdAt?.toLocaleDateString('en-US', {
+        month: 'long',
+        year: 'numeric',
+      }) || 'January 2024',
   })
 
   const initials =
-    user?.name
+    clerkUser?.fullName
       ?.split(' ')
       .map((n) => n[0])
       .join('')
@@ -39,7 +43,7 @@ function ProfilePage() {
 
   const handleSave = () => {
     setIsEditing(false)
-    // In a real app, save to backend
+    // TODO: In a real app, save user profile to backend or Clerk metadata
   }
 
   return (
@@ -74,15 +78,15 @@ function ProfilePage() {
             <div className="flex items-center gap-6">
               <Avatar className="w-20 h-20">
                 <AvatarImage
-                  src={user?.image || '/placeholder.svg'}
-                  alt={user?.name}
+                  src={clerkUser?.imageUrl || '/placeholder.svg'}
+                  alt={clerkUser?.fullName || 'User'}
                 />
                 <AvatarFallback className="text-lg">{initials}</AvatarFallback>
               </Avatar>
               <div>
                 <p className="text-sm text-muted-foreground">Profile Picture</p>
                 <p className="text-sm font-medium text-foreground mt-1">
-                  {user?.name}
+                  {clerkUser?.fullName}
                 </p>
                 <Button
                   variant="outline"

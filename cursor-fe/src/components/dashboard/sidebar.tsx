@@ -3,7 +3,7 @@
 import { Link, useLocation, useNavigate } from '@tanstack/react-router'
 import { Home, User, Calendar, History, Settings, LogOut } from 'lucide-react'
 import { Button } from '../ui/button'
-import { useAuth } from '@/lib/auth-context'
+import { useClerk } from '@clerk/clerk-react'
 
 const menuItems = [
   {
@@ -31,12 +31,16 @@ const menuItems = [
 export function Sidebar() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { logout } = useAuth()
+  const { signOut } = useClerk()
   const pathname = location.pathname
 
   const handleLogout = async () => {
-    logout()
-    await navigate({ to: '/' })
+    try {
+      await signOut()
+      await navigate({ to: '/' })
+    } catch (error) {
+      console.error('Logout failed:', error)
+    }
   }
 
   return (

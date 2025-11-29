@@ -5,54 +5,73 @@ import {
   useEffect,
   ReactNode,
 } from 'react'
+import { useUser, useClerk } from '@clerk/clerk-react'
 
 interface User {
   id: string
   email: string
   name: string
   image?: string
+  phone?: string
+  location?: string
+  joinDate?: string
 }
 
 interface AuthContextType {
   user: User | null
   isLoading: boolean
-  login: (user: User) => void
-  logout: () => void
+  logout: () => Promise<void>
   isAuthenticated: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const { user: clerkUser, isLoaded } = useUser()
+  const { signOut } = useClerk()
   const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
 
+  // Sync Clerk user with local state
   useEffect(() => {
-    // Check if user is already logged in
-    const storedUser = localStorage.getItem('auth-session')
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser))
-      } catch {
-        localStorage.removeItem('auth-session')
+    if (isLoaded) {
+      if (clerkUser) {
+        const mappedUser: User = {
+          id: clerkUser.id,
+          email: clerkUser.primaryEmailAddress?.emailAddress || '',
+          name: clerkUser.fullName || clerkUser.firstName || 'User',
+          image: clerkUser.imageUrl,
+          phone: clerkUser.primaryPhoneNumber?.phoneNumber,
+          joinDate: clerkUser.createdAt
+            ? new Date(clerkUser.createdAt).toLocaleDateString('en-US', {
+                month: 'long',
+                year: 'numeric',
+              })
+            : undefined,
+        }
+        setUser(mappedUser)
+      } else {
+        setUser(null)
       }
     }
-    setIsLoading(false)
-  }, [])
+  }, [clerkUser, isLoaded])
 
-  const login = (newUser: User) => {
-    setUser(newUser)
-    localStorage.setItem('auth-session', JSON.stringify(newUser))
-  }
-
-  const logout = () => {
-    setUser(null)
-    localStorage.removeItem('auth-session')
+  const logout = async () => {
+    try {
+      await signOut()
+      setUser(null)
+    } catch (error) {
+      console.error('Logout failed:', error)
+    }
   }
 
   return (
     <AuthContext.Provider
-      value={{ user, isLoading, login, logout, isAuthenticated: !!user }}
+      value={{
+        user,
+        isLoading: !isLoaded,
+        logout,
+        isAuthenticated: !!user,
+      }}
     >
       {children}
     </AuthContext.Provider>

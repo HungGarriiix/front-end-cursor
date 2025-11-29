@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router'
 import { Sidebar } from '@/components/dashboard/sidebar'
 import { Chatbot } from '@/components/dashboard/chatbot'
-import { ProtectedRoute } from '@/components/protected-route'
+import { ProtectedRoute } from '@/components/protected-route-clerk'
 
 export const Route = createFileRoute('/dashboard')({
   component: DashboardLayout,
