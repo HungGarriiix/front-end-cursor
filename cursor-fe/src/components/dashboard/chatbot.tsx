@@ -1,43 +1,114 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { MessageCircle, X } from 'lucide-react'
-import { useWebhookPrompt } from '@/hooks/queries'
+import { MessageCircle, X, ImagePlus, Send } from 'lucide-react'
 
 export function Chatbot() {
   const [isOpen, setIsOpen] = useState(false)
   const [prompt, setPrompt] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
   const [messages, setMessages] = useState<
-    Array<{ type: 'user' | 'bot'; content: string }>
+    Array<{ type: 'user' | 'bot'; content: string; image?: string }>
   >([])
+  const [selectedImage, setSelectedImage] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const { mutate: submitPrompt, isPending: isLoading } = useWebhookPrompt()
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        setError('Please select a valid image file')
+        return
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image size must be less than 5MB')
+        return
+      }
+      setSelectedImage(file)
+      setError(null)
 
-  const handleSubmit = (e: React.FormEvent) => {
+      // Create preview
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleRemoveImage = () => {
+    setSelectedImage(null)
+    setImagePreview(null)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!prompt.trim() || isLoading) {
+    if ((!prompt.trim() && !selectedImage) || isLoading) {
       return
     }
 
     setError(null)
-    setMessages((prev) => [...prev, { type: 'user', content: prompt }])
-    const currentPrompt = prompt
-    setPrompt('')
+    setIsLoading(true)
 
-    submitPrompt(currentPrompt, {
-      onSuccess: (result) => {
-        setMessages((prev) => [...prev, { type: 'bot', content: result }])
-        console.log('Webhook result:', result)
-      },
-      onError: (error) => {
-        const errorMessage =
-          error instanceof Error ? error.message : 'Unknown error'
-        setError(errorMessage)
-        console.error('Webhook error:', error)
-      },
-    })
+    try {
+      // If there's an image, convert it to base64
+      const messageContent = selectedImage
+        ? `[Image uploaded] ${prompt || '(no text description)'}`
+        : prompt
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          type: 'user',
+          content: messageContent,
+          image: imagePreview || undefined,
+        },
+      ])
+
+      const currentPrompt = prompt
+      setPrompt('')
+      handleRemoveImage()
+
+      // Create FormData for multipart request with image
+      const formData = new FormData()
+      formData.append('prompt', currentPrompt.trim())
+      if (selectedImage) {
+        formData.append('image', selectedImage)
+      }
+
+      // Submit directly using FormData to webhook
+      const webhookUrl = import.meta.env.VITE_WEBHOOK_URL
+      if (!webhookUrl) {
+        throw new Error('Webhook URL is not defined')
+      }
+
+      const response = await fetch(webhookUrl, {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        throw new Error(`Webhook request failed with status ${response.status}`)
+      }
+
+      const data = await response.json()
+      const resultText = String(data?.output || 'No response from webhook')
+
+      setMessages((prev) => [...prev, { type: 'bot', content: resultText }])
+      console.log('Webhook result:', data)
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error'
+      setError(errorMessage)
+      console.error('Webhook error:', err)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -134,23 +205,69 @@ export function Chatbot() {
 
           {/* Input Form */}
           <div className="border-t border-border p-4 space-y-3">
+            {/* Image Preview */}
+            {imagePreview && (
+              <div className="relative inline-block w-full">
+                <img
+                  src={imagePreview}
+                  alt="Selected"
+                  className="w-full h-32 object-cover rounded-md border border-border"
+                />
+                <button
+                  onClick={handleRemoveImage}
+                  type="button"
+                  className="absolute top-1 right-1 bg-destructive/80 hover:bg-destructive text-white p-1 rounded transition-colors"
+                  title="Remove image"
+                  aria-label="Remove image"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-3">
               <Textarea
-                placeholder="Enter your prompt..."
+                placeholder="Enter your prompt... (or just upload an image)"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 disabled={isLoading}
                 rows={3}
                 className="resize-none"
               />
-              <Button
-                type="submit"
-                disabled={isLoading || !prompt.trim()}
-                className="w-full"
-                size="sm"
-              >
-                {isLoading ? 'Sending...' : 'Send'}
-              </Button>
+
+              {/* Image Upload Input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageSelect}
+                disabled={isLoading}
+                className="hidden"
+                title="Upload image"
+                aria-label="Upload image"
+              />
+
+              {/* Action Buttons */}
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isLoading}
+                  className="w-10 h-10 rounded-full border border-border bg-card hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center flex-shrink-0"
+                  title="Upload image"
+                  aria-label="Upload image"
+                >
+                  <ImagePlus className="w-5 h-5" />
+                </button>
+                <Button
+                  type="submit"
+                  disabled={isLoading || (!prompt.trim() && !selectedImage)}
+                  className="flex-1"
+                  size="sm"
+                >
+                  {isLoading ? 'Sending...' : 'Send'}
+                </Button>
+              </div>
             </form>
           </div>
         </div>
