@@ -50,7 +50,27 @@ export function WebhookPrompt() {
       }
 
       const data = await response.json()
-      setResult(JSON.stringify(data, null, 2))
+      
+      // Extract content from 'output' field
+      let resultText = ''
+      if (data?.output) {
+        resultText = String(data.output)
+      } else {
+        setError('Response does not contain an "output" field')
+        console.log('Webhook result:', data)
+        return
+      }
+      
+      // Handle escape sequences
+      resultText = resultText
+        .replace(/\\n/g, '\n')
+        .replace(/\\t/g, '\t')
+        .replace(/\\r/g, '\r')
+        .replace(/\\'/g, "'")
+        .replace(/\\"/g, '"')
+        .replace(/\\\\/g, '\\')
+      
+      setResult(resultText)
       console.log('Webhook result:', data)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred'
@@ -102,9 +122,9 @@ export function WebhookPrompt() {
           <div className="space-y-2">
             <Label>Result</Label>
             <div className="rounded-md bg-muted border p-4">
-              <pre className="text-sm overflow-auto whitespace-pre-wrap break-words">
+              <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">
                 {result}
-              </pre>
+              </p>
             </div>
           </div>
         )}
