@@ -10,7 +10,7 @@ function App() {
       {/* Navigation */}
       <nav className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
         <div className="text-2xl font-bold text-primary">FinanceFlow</div>
-        <Link href="/login">
+        <Link to="/login">
           <Button variant="outline">Sign In</Button>
         </Link>
       </nav>
@@ -29,7 +29,7 @@ function App() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4">
-            <Link href="/login" className="w-full sm:w-auto">
+            <Link to="/login" className="w-full sm:w-auto">
               <Button size="lg" className="w-full gap-2">
                 Get Started <ArrowRight className="w-4 h-4" />
               </Button>
@@ -104,7 +104,7 @@ function App() {
       {/* Footer */}
       <footer className="border-t border-border mt-20 py-8">
         <div className="max-w-7xl mx-auto px-6 text-center text-muted-foreground text-sm">
-          <p>&copy; 2025 FinanceFlow. All rights reserved.</p>
+          <p>&copy; 2025 FinanceFrend. All rights reserved.</p>
         </div>
       </footer>
     </div>

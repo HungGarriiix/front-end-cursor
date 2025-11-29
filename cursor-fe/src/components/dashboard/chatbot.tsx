@@ -46,6 +46,33 @@ export function Chatbot() {
     }
   }
 
+  // Upload image to dedicated webhook
+  const handleImageUpload = async (file: File): Promise<string> => {
+    const imageWebhookUrl = import.meta.env.VITE_IMAGE_WEBHOOK_URL
+    if (!imageWebhookUrl) {
+      throw new Error('Image webhook URL is not defined')
+    }
+
+    const formData = new FormData()
+    formData.append('image', file)
+
+    const response = await fetch(imageWebhookUrl, {
+      method: 'POST',
+      body: formData,
+    })
+
+    if (!response.ok) {
+      throw new Error(`Image upload failed with status ${response.status}`)
+    }
+
+    const data = await response.json()
+    // Return image URL or processed result from webhook
+    return String(
+      data?.imageUrl || data?.output || 'Image uploaded successfully',
+    )
+  }
+
+  // Submit chat with optional image
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -57,7 +84,7 @@ export function Chatbot() {
     setIsLoading(true)
 
     try {
-      // If there's an image, convert it to base64
+      // Message content
       const messageContent = selectedImage
         ? `[Image uploaded] ${prompt || '(no text description)'}`
         : prompt
@@ -72,40 +99,61 @@ export function Chatbot() {
       ])
 
       const currentPrompt = prompt
+      const currentImage = selectedImage
+
       setPrompt('')
       handleRemoveImage()
 
-      // Create FormData for multipart request with image
-      const formData = new FormData()
-      formData.append('prompt', currentPrompt.trim())
-      if (selectedImage) {
-        formData.append('image', selectedImage)
+      // If there's an image, upload it first to image webhook
+      if (currentImage) {
+        try {
+          const imageResult = await handleImageUpload(currentImage)
+          console.log('Image upload result:', imageResult)
+
+          // Add image processing result to messages
+          setMessages((prev) => [
+            ...prev,
+            { type: 'bot', content: imageResult },
+          ])
+        } catch (imageErr) {
+          const errorMessage =
+            imageErr instanceof Error ? imageErr.message : 'Image upload failed'
+          setError(errorMessage)
+          console.error('Image upload error:', imageErr)
+          setIsLoading(false)
+          return
+        }
       }
 
-      // Submit directly using FormData to webhook
-      const webhookUrl = import.meta.env.VITE_WEBHOOK_URL
-      if (!webhookUrl) {
-        throw new Error('Webhook URL is not defined')
+      // If there's a text prompt, send to chat webhook
+      if (currentPrompt.trim()) {
+        const webhookUrl = import.meta.env.VITE_WEBHOOK_URL
+        if (!webhookUrl) {
+          throw new Error('Chat webhook URL is not defined')
+        }
+
+        const formData = new FormData()
+        formData.append('prompt', currentPrompt.trim())
+
+        const response = await fetch(webhookUrl, {
+          method: 'POST',
+          body: formData,
+        })
+
+        if (!response.ok) {
+          throw new Error(`Chat request failed with status ${response.status}`)
+        }
+
+        const data = await response.json()
+        const resultText = String(data?.output || 'No response from webhook')
+
+        setMessages((prev) => [...prev, { type: 'bot', content: resultText }])
+        console.log('Chat webhook result:', data)
       }
-
-      const response = await fetch(webhookUrl, {
-        method: 'POST',
-        body: formData,
-      })
-
-      if (!response.ok) {
-        throw new Error(`Webhook request failed with status ${response.status}`)
-      }
-
-      const data = await response.json()
-      const resultText = String(data?.output || 'No response from webhook')
-
-      setMessages((prev) => [...prev, { type: 'bot', content: resultText }])
-      console.log('Webhook result:', data)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error'
       setError(errorMessage)
-      console.error('Webhook error:', err)
+      console.error('Error:', err)
     } finally {
       setIsLoading(false)
     }

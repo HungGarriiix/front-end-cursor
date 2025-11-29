@@ -47,7 +47,7 @@ export function Sidebar() {
     <aside className="w-64 bg-card border-r border-border flex flex-col">
       {/* Logo */}
       <div className="p-6 border-b border-border">
-        <div className="text-2xl font-bold text-primary">FinanceFlow</div>
+        <div className="text-2xl font-bold text-primary">FinanceFrend</div>
       </div>
 
       {/* Navigation Menu */}
