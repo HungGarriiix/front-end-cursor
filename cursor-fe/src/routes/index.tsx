@@ -1,11 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
 import {
-  Zap,
-  Server,
   Route as RouteIcon,
   Shield,
-  Waves,
   Sparkles,
+  Waves,
+  Zap,
 } from 'lucide-react'
 
 export const Route = createFileRoute('/')({ component: App })
@@ -18,12 +17,12 @@ function App() {
       description:
         'Write server-side code that seamlessly integrates with your client components. Type-safe, secure, and simple.',
     },
-    {
-      icon: <Server className="w-12 h-12 text-cyan-400" />,
-      title: 'Flexible Server Side Rendering',
-      description:
-        'Full-document SSR, streaming, and progressive enhancement out of the box. Control exactly what renders where.',
-    },
+    // {
+    //   icon: <Server className="w-12 h-12 text-cyan-400" />,
+    //   title: 'Flexible Server Side Rendering',
+    //   description:
+    //     'Full-document SSR, streaming, and progressive enhancement out of the box. Control exactly what renders where.',
+    // },
     {
       icon: <RouteIcon className="w-12 h-12 text-cyan-400" />,
       title: 'API Routes',

@@ -1,5 +1,16 @@
 Welcome to your new TanStack app! 
 
+## Prerequisites
+
+This project requires **Node.js version 20.19+ or 22.12+**. 
+
+If you're using `nvm` (Node Version Manager), you can switch to the correct version:
+```bash
+nvm use
+```
+
+Or install/upgrade Node.js from [nodejs.org](https://nodejs.org/).
+
 # Getting Started
 
 To run this application:
