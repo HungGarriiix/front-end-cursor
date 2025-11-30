@@ -12,6 +12,33 @@ export function Chatbot() {
     Array<{ type: 'user' | 'bot'; content: string }>
   >([])
 
+  // Upload image to dedicated webhook
+  const handleImageUpload = async (file: File): Promise<string> => {
+    const imageWebhookUrl = import.meta.env.VITE_IMAGE_WEBHOOK_URL
+    if (!imageWebhookUrl) {
+      throw new Error('Image webhook URL is not defined')
+    }
+
+    const formData = new FormData()
+    formData.append('image', file)
+
+    const response = await fetch(imageWebhookUrl, {
+      method: 'POST',
+      body: formData,
+    })
+
+    if (!response.ok) {
+      throw new Error(`Image upload failed with status ${response.status}`)
+    }
+
+    const data = await response.json()
+    // Return image URL or processed result from webhook
+    return String(
+      data?.imageUrl || data?.output || 'Image uploaded successfully',
+    )
+  }
+
+  // Submit chat with optional image
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -64,7 +91,7 @@ export function Chatbot() {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error'
       setError(errorMessage)
-      console.error('Webhook error:', err)
+      console.error('Error:', err)
     } finally {
       setIsLoading(false)
     }
