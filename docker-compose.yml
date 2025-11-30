@@ -6,10 +6,10 @@ services:
     environment:
       - TAILSCALE_AUTH_KEY=${TAILSCALE_AUTH_KEY}
       - TS_STATE_DIR=/var/lib/tailscale
+      - TS_ACCEPT_DNS=true
+      - TS_EXTRA_ARGS=--reset
     volumes:
       - tailscale_state:/var/lib/tailscale
-      - ./tailscale-init.sh:/tailscale-init.sh:ro
-      - ./serve.json:/serve.json:ro
     cap_add:
       - NET_ADMIN
       - NET_RAW
@@ -17,8 +17,6 @@ services:
       - /dev/net/tun:/dev/net/tun
     networks:
       - net
-    entrypoint: /bin/sh
-    command: /tailscale-init.sh
     ports:
       - "80:80"
       - "443:443"

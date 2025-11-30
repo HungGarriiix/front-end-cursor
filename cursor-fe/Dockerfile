@@ -19,12 +19,15 @@ RUN npm install -g pnpm@latest
 # Copy manifests
 COPY package.json pnpm-lock.yaml .npmrc* ./
 
-# Install everything
+# Install everything (needed for build tools)
 RUN pnpm install --frozen-lockfile
 
 # Copy source and build
 COPY . .
 RUN pnpm run build
+
+# Clean build artifacts
+RUN rm -rf .git node_modules
 
 # Production stage
 FROM node:22-alpine
@@ -36,8 +39,22 @@ RUN npm install -g pnpm@latest
 # Copy package files
 COPY package.json pnpm-lock.yaml .npmrc* ./
 
-# Install ALL dependencies (including dev deps needed for vite preview)
-RUN pnpm install --frozen-lockfile
+# Install ONLY production dependencies and clean aggressive
+RUN pnpm install --frozen-lockfile --prod --shamefully-hoist && \
+    # Prune pnpm store to remove unused dependencies
+    pnpm prune --prod && \
+    # Remove all markdown, maps, test files, and dev-related files
+    find /app/node_modules -type f \( \
+    -name "*.md" -o -name "*.map" -o -name "*.test.*" -o -name "*.spec.*" -o \
+    -name "*.d.ts" -o -name "*.d.ts.map" \
+    \) -delete 2>/dev/null || true && \
+    # Remove unnecessary directories
+    find /app/node_modules -type d \( \
+    -name ".git" -o -name "test" -o -name "tests" -o -name "__tests__" -o \
+    -name "docs" -o -name "examples" -o -name ".github" -o -name "fixtures" \
+    \) -exec rm -rf {} + 2>/dev/null || true && \
+    # Clean cache
+    rm -rf /root/.local /root/.npm /root/.pnpm-store /root/.cache
 
 # Copy built dist from builder
 COPY --from=builder /app/dist ./dist
