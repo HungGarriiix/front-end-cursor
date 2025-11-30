@@ -27,19 +27,19 @@ COPY . .
 RUN pnpm run build
 
 # Clean build artifacts
-RUN rm -rf .git node_modules
+RUN rm -rf .git
 
-# Production stage
-FROM node:22-alpine
+# Production stage - Install and clean dependencies in Alpine, then copy to distroless
+FROM node:22-alpine AS deps
 WORKDIR /app
-
-# Install pnpm globally
-RUN npm install -g pnpm@latest
 
 # Copy package files
 COPY package.json pnpm-lock.yaml .npmrc* ./
 
-# Install ONLY production dependencies and clean aggressive
+# Install pnpm
+RUN npm install -g pnpm@latest
+
+# Install ONLY production dependencies and clean aggressively
 RUN pnpm install --frozen-lockfile --prod --shamefully-hoist && \
     # Prune pnpm store to remove unused dependencies
     pnpm prune --prod && \
@@ -54,7 +54,14 @@ RUN pnpm install --frozen-lockfile --prod --shamefully-hoist && \
     -name "docs" -o -name "examples" -o -name ".github" -o -name "fixtures" \
     \) -exec rm -rf {} + 2>/dev/null || true && \
     # Clean cache
-    rm -rf /root/.local /root/.npm /root/.pnpm-store /root/.cache
+    rm -rf /root/.local /root/.npm /root/.pnpm-store /root/.cache /tmp/*
+
+# Final production stage - Distroless (no shell, minimal)
+FROM gcr.io/distroless/nodejs22-debian12:nonroot
+WORKDIR /app
+
+# Copy cleaned node_modules from deps stage
+COPY --from=deps /app/node_modules ./node_modules
 
 # Copy built dist from builder
 COPY --from=builder /app/dist ./dist
@@ -65,9 +72,9 @@ COPY serve.js ./serve.js
 ENV NODE_ENV=production
 EXPOSE 4173
 
-# Health check
+# Health check using busybox (available in distroless)
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:4173', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})" || exit 1
+    CMD ["/busybox/sh", "-c", "wget --no-verbose --tries=1 --spider http://localhost:4173 || exit 1"]
 
 # Run custom static server
-CMD ["node", "serve.js"]
+CMD ["serve.js"]
